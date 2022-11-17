@@ -10,36 +10,84 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
+let map;
+let mapEvent;
 
-if(navigator.geolocation)
-navigator.geolocation.getCurrentPosition(function(position){
-// console.log(position)
-const latitude = position.coords.latitude;
-const longitude = position.coords.longitude; 
 
-console.log(position)
-const coords = [latitude, longitude];
+// ORIENTAÇÃO A OBJETOS
+class App{
+  constructor(){}
 
-console.log(coords)
-const map = L.map('map').setView(coords, 13);
+  _getPosition(){
+    if(navigator.geolocation)
+navigator.geolocation.getCurrentPosition(this._loadMap(), function(){
+  alert('Não conseguimos encontrar sua posição, por favor recarregue a página e aceite o acesso a sua localização');
+})
+  }
 
-L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+  _loadMap(position){
 
-L.marker(coords).addTo(map)
-    .bindPopup('Você está aqui')
-    .openPopup();;
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude; 
+      
+      const coords = [latitude, longitude];
+      
+      console.log(coords)
+      map = L.map('map').setView(coords, 13);
+      
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      
+      L.marker(coords).addTo(map)
+          .bindPopup('Você está aqui')
+          .openPopup();;
+      
+          map.on('click', function(mapE){
+            mapEvent = mapE;
+            form.classList.remove('hidden');
+            inputDistance.focus();
+      
+          })
+          // map.on
+      , function(){
+        alert('Não conseguimos encontrar sua posição, por favor recarregue a página e aceite o acesso a sua localização');
+      }
+  }
+  _showForm(){}
+  _toggleElevationField(){}
+  _newWorkout(){}
+}
 
-    map.on('click', function(mapEvent){
-      console.log(mapEvent)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+form.addEventListener('submit', (event)=>{
+  event.preventDefault();
+
+  // Clear input fields
+  inputDistance.value = inputDuration.value = inputCadence.value = inputElevation.value = '';
       const lat = mapEvent.latlng.lat;
       const long = mapEvent.latlng.lng;
     L.marker([lat, long]).addTo(map)
     .bindPopup('Esteve aqui')
     .openPopup();;
-    })
-    // map.on
-}, function(){
-  alert('Não conseguimos encontrar sua posição, por favor recarregue a página e aceite o acesso a sua localização');
 })
+
+inputType.addEventListener('change', function(){
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  })
+
+  
